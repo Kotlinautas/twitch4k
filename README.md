@@ -1,6 +1,15 @@
 # Twitch4K
 
-Cliente IRC da Twitch escrito em Kotlin.
+## O que é o Twitch4K
+O Twitch4K é uma biblioteca escrita na linguagem de programação Kotlin que permite a criação de `bots` voltados ao chat da Twitch. O intuito de escrever esta biblioteca é de compreender melhor como a infraestrutura de char da Twitch funcionaa, praticar a construção de um cliente IRC com Kotlin e possibilitar a criação de ferramentas visando melhorar a experiência das pessoas que assistem lives na Twitch através de `chatbots`
 
+## Como utilizar a biblioteca
+:warning: Ainda o código está na fase de desenvolvimento! Quando houver uma versão minimamente estável, atualizaremos esta seção. :warning:
+
+
+## Funcionalidades 
 - [X] Parser de mensagens raw;
 - [ ] Representação de uma mensagem do chat;
+
+## Créditos
+Bruno Lopes - contato@profbrunolopes.dev.br
