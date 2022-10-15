@@ -7,16 +7,11 @@ object IRCMessageUtil {
     fun parseRawMessage(message: String): RawMessage {
         val builder = RawMessage.Builder()
         builder.setRaw(message)
-        message
-            .let { extractTags(it, builder) }
+        extractTags(message, builder)
             .let { extractPrefix(it, builder) }
             .let { extractCommand(it, builder) }
             .let { extractParams(it, builder) }
         return builder.build()
-    }
-
-    infix fun Int.p (other:Int): Int{
-        return this + other
     }
 
     private fun extractParams(message: String, builder: RawMessage.Builder): String {
