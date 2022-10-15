@@ -15,7 +15,11 @@ object IRCMessageUtil {
         return builder.build()
     }
 
-    private fun extractParams(message: String, builder: RawMessage.Builder) {
+    infix fun Int.p (other:Int): Int{
+        return this + other
+    }
+
+    private fun extractParams(message: String, builder: RawMessage.Builder): String {
         var remaining = message
         while (remaining.isNotEmpty()) {
             remaining = when {
@@ -30,6 +34,7 @@ object IRCMessageUtil {
                 }
             }
         }
+        return ""
     }
 
     private fun extractCommand(message: String, builder: RawMessage.Builder): String {
