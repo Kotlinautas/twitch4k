@@ -1,4 +1,4 @@
-package dev.kotlinautas.twitch4k
+package dev.kotlinautas.twitch4k.components
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -29,8 +29,8 @@ object TwitchMessages {
         return "CAP REQ :twitch.tv/commands\r\n"
     }
 
-    fun pongMessage(): String {
-        return "PONG :tmi.twitch.tv\r\n"
+    fun pongMessage(text:String): String {
+        return "PONG $text\r\n"
     }
 
 }
