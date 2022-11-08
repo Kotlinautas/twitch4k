@@ -7,7 +7,7 @@ class StateHandler : AbstractMessageHandler() {
 
     private val roomStateMap: MutableMap<Int, RoomState> = mutableMapOf()
 
-    override val codes: Array<String> = arrayOf("USERSTATE", "ROOTSTATE")
+    override val codes: Array<String> = arrayOf("USERSTATE", "ROOMSTATE")
 
     override fun handle(rawMessage: RawMessage) {
         val channelId = rawMessage.tags["room-id"]?.toInt() ?: 0
