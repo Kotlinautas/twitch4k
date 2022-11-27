@@ -11,7 +11,7 @@ class AuthenticationHandler(
 
     override val codes: Array<String> = arrayOf("001")
 
-    override fun handle(rawMessage: RawMessage) {
+    override fun handle(message: RawMessage) {
         logger.info("Autenticado com sucesso!")
 
         // Registrando nas Twitch Capabilities

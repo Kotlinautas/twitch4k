@@ -9,7 +9,13 @@ O Twitch4K é uma biblioteca escrita na linguagem de programação Kotlin que pe
 
 ## Funcionalidades 
 - [X] Parser de mensagens raw;
-- [ ] Representação de uma mensagem do chat;
+- [X] Conexão via Socket com o servidor IRC da Twitch;
+- [X] Realizar processo de autenticação;
+- [X] Processar mensagens PING;
+- [X] Processar as mesnagens PRIVMSG;
+- [ ] Listener de mensagens do `chat`
+
 
 ## Créditos
 Bruno Lopes - contato@profbrunolopes.dev.br
+Felipe Nathan Campigoto - ncampigoto@gmail.com
