@@ -1,12 +1,11 @@
 package dev.kotlinautas.twitch4k.components.handlers
 
 import dev.kotlinautas.twitch4k.entity.RawMessage
+import dev.kotlinautas.twitch4k.interfaces.Sender
 
 class CapabilityHandler : AbstractMessageHandler() {
 
-    override val codes: Array<String> = arrayOf("CAP")
-
-    override fun handle(rawMessage: RawMessage) {
+    override fun handle(rawMessage: RawMessage, sender: Sender) {
         if (rawMessage.params.contains("ACK")) {
             val command = rawMessage.params.last()
             when {

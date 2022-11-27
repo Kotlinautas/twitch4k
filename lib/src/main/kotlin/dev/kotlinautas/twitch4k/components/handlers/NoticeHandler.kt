@@ -1,12 +1,11 @@
 package dev.kotlinautas.twitch4k.components.handlers
 
 import dev.kotlinautas.twitch4k.entity.RawMessage
+import dev.kotlinautas.twitch4k.interfaces.Sender
 
 class NoticeHandler : AbstractMessageHandler() {
 
-    override val codes: Array<String> = arrayOf("NOTICE")
-
-    override fun handle(rawMessage: RawMessage) {
+    override fun handle(rawMessage: RawMessage, sender: Sender) {
         when (rawMessage.tags["msg-id"]) {
             "emote_only_on" -> logger.info("O chat do canal ${rawMessage.params.first()} está no modo apenas emote")
             "emote_only_off" -> logger.info("O chat do canal ${rawMessage.params.first()} não está no modo apenas emote")

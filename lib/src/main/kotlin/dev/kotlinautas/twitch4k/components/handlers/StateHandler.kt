@@ -2,14 +2,13 @@ package dev.kotlinautas.twitch4k.components.handlers
 
 import dev.kotlinautas.twitch4k.entity.RawMessage
 import dev.kotlinautas.twitch4k.entity.RoomState
+import dev.kotlinautas.twitch4k.interfaces.Sender
 
 class StateHandler : AbstractMessageHandler() {
 
     private val roomStateMap: MutableMap<Int, RoomState> = mutableMapOf()
 
-    override val codes: Array<String> = arrayOf("USERSTATE", "ROOMSTATE")
-
-    override fun handle(rawMessage: RawMessage) {
+    override fun handle(rawMessage: RawMessage, sender: Sender) {
         val channelId = rawMessage.tags["room-id"]?.toInt() ?: 0
         val channelName = rawMessage.params.first()
 

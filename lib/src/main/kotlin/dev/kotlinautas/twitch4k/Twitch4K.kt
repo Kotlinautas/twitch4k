@@ -49,7 +49,7 @@ class Twitch4K constructor(
             val twitchSenderThread = Thread(TwitchSender(outputStream, queue))
             twitchSenderThread.start()
 
-            // Envia o nome de usuário e a senha
+            // Envia o nome de utilizador e a senha
             sendMessage(TwitchMessages.passMessage(token))
             sendMessage(TwitchMessages.nickMessage(username))
 

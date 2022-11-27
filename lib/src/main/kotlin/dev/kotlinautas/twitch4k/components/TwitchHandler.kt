@@ -1,29 +1,37 @@
 package dev.kotlinautas.twitch4k.components
 
+import dev.kotlinautas.twitch4k.components.handlers.AuthenticationHandler
 import dev.kotlinautas.twitch4k.components.handlers.MessageHandlerDiscovery
 import dev.kotlinautas.twitch4k.interfaces.Sender
 import dev.kotlinautas.twitch4k.util.IRCMessageUtil
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.security.Key
 
 class TwitchHandler(
     private val inputStream: InputStream,
-    channels: List<String>,
-    sender: Sender
+    val channels: List<String>,
+    val sender: Sender
 ) : Runnable {
 
     private val logger = LoggerFactory.getLogger("TWITCH_HANDLER")
-    private val messageHandlerDiscovery = MessageHandlerDiscovery(channels, sender)
+    private val messageHandlerDiscovery = MessageHandlerDiscovery()
 
-    override fun run() {
+    override fun run() = runBlocking {
         val bufferedReader = inputStream.bufferedReader()
         while (true) {
             val message = bufferedReader.readLine()
             if (message != null) {
-                val rawMessage = IRCMessageUtil.parseRawMessage(message)
-                val handler = messageHandlerDiscovery.handleMessageFor(rawMessage.command)
-                handler?.handle(rawMessage) ?: logger.error("Comando não esperado: ${rawMessage.command}")
+                launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
+                    val rawMessage = IRCMessageUtil.parseRawMessage(message)
+                    val handler = if (rawMessage.command == "001")
+                        AuthenticationHandler(channels)
+                    else messageHandlerDiscovery.handleMessageFor(rawMessage)
+                    handler?.handle(rawMessage, sender) ?: logger.error("Comando não esperado: ${rawMessage.command}")
+                }
             }
         }
     }
