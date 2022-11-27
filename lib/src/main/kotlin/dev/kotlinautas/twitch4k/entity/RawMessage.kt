@@ -30,19 +30,12 @@ class RawMessage private constructor(
         var command: String? = null
         val params: MutableList<String> = mutableListOf()
 
-//        fun setRaw(rawMessage: String) = apply { this.raw = rawMessage }
-//        fun addTag(key: String, value: String) = apply { this.tags[key] = value }
-//        fun setPrefix(prefix: String) = apply { this.prefix = prefix }
-//        fun setCommand(command: String) = apply { this.command = command }
-//        fun addParam(param: String) = apply { this.params.add(param) }
-        fun build(): RawMessage {
-
-            if (raw == null) throw NullPointerException("A propriedade raw não pode ser nula")
-            if (command == null) throw NullPointerException("A propriedade prefix não pode ser nula")
-
-            return RawMessage(raw!!, tags.toMap(), prefix, command!!, params)
-
-        }
+        fun build() = RawMessage(
+            raw = this.raw ?: throw NullPointerException("A propriedade raw não pode ser nula"),
+            command = this.command ?: throw NullPointerException("A propriedade command não pode ser nula"),
+            tags = this.tags.toMap(),
+            prefix = this.prefix,
+            params = this.params.toList()
+        )
     }
-
 }
