@@ -1,5 +1,6 @@
 package dev.kotlinautas.twitch4k.components.handlers
 
+import dev.kotlinautas.twitch4k.entity.Chat
 import dev.kotlinautas.twitch4k.entity.RawMessage
 import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
@@ -14,7 +15,8 @@ class PrivateMessageHandler(private val listener: OnReceivedChatMessageListener?
         val text = rawMessage.params.last().removePrefix(":")
         logger.info("[$channel] $chatter: $text")
 
-        listener?.onReceived(rawMessage.toChatMessage(), sender)
+        val chat = Chat(sender)
+        listener?.onReceived(rawMessage.toChatMessage(), chat)
     }
 
 }

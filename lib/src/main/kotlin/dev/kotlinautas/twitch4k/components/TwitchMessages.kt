@@ -33,4 +33,8 @@ object TwitchMessages {
         return "PONG $text\r\n"
     }
 
+    fun privMessage(channel:String, message:String): String {
+        return "PRIVMSG #$channel :$message\r\n"
+    }
+
 }
