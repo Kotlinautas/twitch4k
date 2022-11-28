@@ -17,5 +17,5 @@ O Twitch4K é uma biblioteca escrita na linguagem de programação Kotlin que pe
 
 
 ## Créditos
-Bruno Lopes - contato@profbrunolopes.dev.br
-Felipe Nathan Campigoto - ncampigoto@gmail.com
+- Bruno Lopes - brunolopesjn@gmail.com
+- Felipe Nathan Campigoto - ncampigoto@gmail.com
