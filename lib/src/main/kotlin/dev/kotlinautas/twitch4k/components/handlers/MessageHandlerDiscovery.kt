@@ -1,8 +1,12 @@
 package dev.kotlinautas.twitch4k.components.handlers
 
 import dev.kotlinautas.twitch4k.entity.RawMessage
+import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 
 class MessageHandlerDiscovery() {
+
+    var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
+
 
     fun handleMessageFor(message: RawMessage): MessageHandler? {
         return when (message.command) {
@@ -11,7 +15,7 @@ class MessageHandlerDiscovery() {
             in arrayOf("NOTICE") -> NoticeHandler()
             in arrayOf("PART") -> PartHandler()
             in arrayOf("PING") -> PingHandler()
-            in arrayOf("PRIVMSG") -> PrivateMessageHandler()
+            in arrayOf("PRIVMSG") -> PrivateMessageHandler(onReceivedChatMessageListener)
             in arrayOf("USERSTATE", "ROOMSTATE") -> StateHandler()
             in arrayOf(
                 "002",

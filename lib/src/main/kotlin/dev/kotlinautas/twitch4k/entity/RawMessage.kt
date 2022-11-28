@@ -1,5 +1,11 @@
 package dev.kotlinautas.twitch4k.entity
 
+import dev.kotlinautas.twitch4k.util.*
+import java.sql.Timestamp
+import java.time.Instant
+import java.util.*
+
+
 class RawMessage private constructor(
     val raw: String,
     val tags: Map<String, String>,
@@ -14,7 +20,7 @@ class RawMessage private constructor(
 
     companion object {
         @JvmStatic
-        fun create(operations: Builder.() -> Unit): RawMessage{
+        fun create(operations: Builder.() -> Unit): RawMessage {
             val builder = Builder()
             builder.operations()
             return builder.build()
@@ -38,4 +44,18 @@ class RawMessage private constructor(
             params = this.params.toList()
         )
     }
+
+    fun toChatMessage(): ChatMessage = ChatMessage(
+        id = tags.getMessageId(),
+        date = tags.getDate(),
+        channel = params.first().substringAfter("#"),
+        text = params.last().substringAfter(":"),
+        user = User(
+            id = tags.getUserId(),
+            displayName = tags.getDisplayName(),
+            isSubscriber = tags.isSubscriber(),
+            isModerator = tags.isModerator(),
+            isFirstMessage = tags.isFirstMessage(),
+        )
+    )
 }

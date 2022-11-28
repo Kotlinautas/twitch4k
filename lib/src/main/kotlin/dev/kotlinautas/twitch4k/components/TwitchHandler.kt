@@ -2,6 +2,7 @@ package dev.kotlinautas.twitch4k.components
 
 import dev.kotlinautas.twitch4k.components.handlers.AuthenticationHandler
 import dev.kotlinautas.twitch4k.components.handlers.MessageHandlerDiscovery
+import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
 import dev.kotlinautas.twitch4k.util.IRCMessageUtil
 import kotlinx.coroutines.CoroutineStart
@@ -18,9 +19,13 @@ class TwitchHandler(
 ) : Runnable {
 
     private val logger = LoggerFactory.getLogger("TWITCH_HANDLER")
-    private val messageHandlerDiscovery = MessageHandlerDiscovery()
+
+    var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
 
     override fun run() = runBlocking {
+        val messageHandlerDiscovery = MessageHandlerDiscovery()
+        messageHandlerDiscovery.onReceivedChatMessageListener = onReceivedChatMessageListener
+
         val bufferedReader = inputStream.bufferedReader()
         while (true) {
             val message = bufferedReader.readLine()

@@ -3,6 +3,8 @@ package dev.kotlinautas.twitch4k
 import dev.kotlinautas.twitch4k.components.TwitchHandler
 import dev.kotlinautas.twitch4k.components.TwitchMessages
 import dev.kotlinautas.twitch4k.components.TwitchSender
+import dev.kotlinautas.twitch4k.entity.ChatMessage
+import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
 import dev.kotlinautas.twitch4k.util.IRCMessageUtil
 import kotlinx.coroutines.runBlocking
@@ -24,6 +26,13 @@ class Twitch4K constructor(
 
     private val logger = LoggerFactory.getLogger("TWITCH4K")
     private val queue: Queue<String> = ConcurrentLinkedQueue()
+
+    private var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
+
+    fun setOnReceivedChatMessageListener(listener: OnReceivedChatMessageListener){
+        this.onReceivedChatMessageListener = listener
+    }
+
     fun start() {
 
         val socket = Socket()
@@ -41,8 +50,12 @@ class Twitch4K constructor(
             val inputStream = socket.getInputStream()
             val outputStream = socket.getOutputStream()
 
+            val twitchHandler = TwitchHandler(inputStream, channels, this)
+            twitchHandler.onReceivedChatMessageListener = onReceivedChatMessageListener
+
+
             // Criando a thread responsável por manipular as mensagens da Twitch
-            val twitchHandlerThread = Thread(TwitchHandler(inputStream, channels, this))
+            val twitchHandlerThread = Thread(twitchHandler)
             twitchHandlerThread.start()
 
             // Criando a thread responsável por enviar as mensagens para Twitch
@@ -58,19 +71,8 @@ class Twitch4K constructor(
 
         }
     }
-
     override fun sendMessage(message: String) {
         queue.add(message)
     }
 
-}
-
-fun main() {
-
-    val t4k = Twitch4K(
-        username = "justinfan123",
-        token = "123",
-        channels = listOf("profbrunolopes"))
-
-    t4k.start()
 }
