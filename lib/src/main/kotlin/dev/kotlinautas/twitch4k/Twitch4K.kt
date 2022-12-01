@@ -3,11 +3,8 @@ package dev.kotlinautas.twitch4k
 import dev.kotlinautas.twitch4k.components.TwitchHandler
 import dev.kotlinautas.twitch4k.components.TwitchMessages
 import dev.kotlinautas.twitch4k.components.TwitchSender
-import dev.kotlinautas.twitch4k.entity.ChatMessage
 import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
-import dev.kotlinautas.twitch4k.util.IRCMessageUtil
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -19,9 +16,9 @@ private const val TWITCH_IRC_PORT = 6667
 private const val TWITCH_IRC_SSL_PORT = 6697
 
 class Twitch4K constructor(
-    val username: String,
-    val token: String,
-    val channels: List<String>
+    private val username: String,
+    private val token: String,
+    private val channels: List<String>
 ) : Sender {
 
     private val logger = LoggerFactory.getLogger("TWITCH4K")
@@ -29,50 +26,52 @@ class Twitch4K constructor(
 
     private var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
 
-    fun setOnReceivedChatMessageListener(listener: OnReceivedChatMessageListener){
+    fun setOnReceivedChatMessageListener(listener: OnReceivedChatMessageListener) {
         this.onReceivedChatMessageListener = listener
     }
 
     fun start() {
-
-        val socket = Socket()
-        socket.receiveBufferSize = 4096
-        socket.sendBufferSize = 4096
-        socket.reuseAddress = true
-        socket.tcpNoDelay = true
-
-        logger.info("Conectando ao host $TWITCH_IRC_SERVER")
-        socket.connect(InetSocketAddress(TWITCH_IRC_SERVER, TWITCH_IRC_PORT))
+        val socket = createSocket()
 
         if (socket.isConnected) {
+            val twitchHandlerThread = createAndStartTwitchHandlerThread(socket)
+            val twitchSenderThread = createAndStartTwitchSenderThread(socket)
 
-            // Recuperando os fluxos de entrada e saĩda de dados do socket
-            val inputStream = socket.getInputStream()
-            val outputStream = socket.getOutputStream()
-
-            val twitchHandler = TwitchHandler(inputStream, channels, this)
-            twitchHandler.onReceivedChatMessageListener = onReceivedChatMessageListener
-
-
-            // Criando a thread responsável por manipular as mensagens da Twitch
-            val twitchHandlerThread = Thread(twitchHandler)
-            twitchHandlerThread.start()
-
-            // Criando a thread responsável por enviar as mensagens para Twitch
-            val twitchSenderThread = Thread(TwitchSender(outputStream, queue))
-            twitchSenderThread.start()
-
-            // Envia o nome de utilizador e a senha
             sendMessage(TwitchMessages.passMessage(token))
             sendMessage(TwitchMessages.nickMessage(username))
 
             twitchHandlerThread.join()
             twitchSenderThread.join()
-
         }
     }
+
     override fun sendMessage(message: String) {
         queue.add(message)
+    }
+
+    private fun createSocket(): Socket {
+        val socket = Socket().apply {
+            receiveBufferSize = 4096
+            sendBufferSize = 4096
+            reuseAddress = true
+            tcpNoDelay = true
+        }
+
+        return socket.also {
+            logger.info("Conectando ao host $TWITCH_IRC_SERVER")
+            it.connect(InetSocketAddress(TWITCH_IRC_SERVER, TWITCH_IRC_PORT))
+        }
+    }
+
+    private fun createAndStartTwitchHandlerThread(socket: Socket): Thread {
+        val twitchHandler = TwitchHandler(socket.getInputStream(), channels, this).also { handler ->
+            handler.onReceivedChatMessageListener = onReceivedChatMessageListener
+        }
+        return Thread(twitchHandler).also { it.start() }
+    }
+
+    private fun createAndStartTwitchSenderThread(socket: Socket): Thread {
+        return Thread(TwitchSender(socket.getOutputStream(), queue)).also { it.start() }
     }
 
 }

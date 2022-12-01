@@ -4,6 +4,9 @@ import org.slf4j.LoggerFactory
 import java.io.OutputStream
 import java.util.Queue
 
+/**
+* Handler responsável por enviar as mensagens para Twitch
+* */
 class TwitchSender(
     private val outputStream: OutputStream,
     private val queue: Queue<String>

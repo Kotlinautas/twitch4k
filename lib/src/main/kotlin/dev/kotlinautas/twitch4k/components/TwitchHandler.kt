@@ -12,9 +12,12 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 
+/**
+* Handler responsável por manipular as mensagens da Twitch
+* */
 class TwitchHandler(
     private val inputStream: InputStream,
-    val channels: List<String>,
+    private val channels: List<String>,
     val sender: Sender
 ) : Runnable {
 
@@ -23,8 +26,9 @@ class TwitchHandler(
     var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
 
     override fun run() = runBlocking {
-        val messageHandlerDiscovery = MessageHandlerDiscovery()
-        messageHandlerDiscovery.onReceivedChatMessageListener = onReceivedChatMessageListener
+        val messageHandlerDiscovery = MessageHandlerDiscovery().also { discovery ->
+            discovery.onReceivedChatMessageListener = onReceivedChatMessageListener
+        }
 
         val bufferedReader = inputStream.bufferedReader()
         while (true) {
@@ -32,9 +36,10 @@ class TwitchHandler(
             if (message != null) {
                 launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
                     val rawMessage = IRCMessageUtil.parseRawMessage(message)
-                    val handler = if (rawMessage.command == "001")
-                        AuthenticationHandler(channels)
-                    else messageHandlerDiscovery.handleMessageFor(rawMessage)
+                    val handler = when (rawMessage.command) {
+                        "001" -> AuthenticationHandler(channels)
+                        else -> messageHandlerDiscovery.handleMessageFor(rawMessage)
+                    }
                     handler?.handle(rawMessage, sender) ?: logger.error("Comando não esperado: ${rawMessage.command}")
                 }
             }

@@ -7,15 +7,14 @@ class MessageHandlerDiscovery() {
 
     var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
 
-
     fun handleMessageFor(message: RawMessage): MessageHandler? {
         return when (message.command) {
-            in arrayOf("CAP") -> CapabilityHandler()
-            in arrayOf("JOIN") -> JoinHandler()
-            in arrayOf("NOTICE") -> NoticeHandler()
-            in arrayOf("PART") -> PartHandler()
-            in arrayOf("PING") -> PingHandler()
-            in arrayOf("PRIVMSG") -> PrivateMessageHandler(onReceivedChatMessageListener)
+            "CAP" -> CapabilityHandler()
+            "JOIN" -> JoinHandler()
+            "NOTICE" -> NoticeHandler()
+            "PART" -> PartHandler()
+            "PING" -> PingHandler()
+            "PRIVMSG" -> PrivateMessageHandler(onReceivedChatMessageListener)
             in arrayOf("USERSTATE", "ROOMSTATE") -> StateHandler()
             in arrayOf(
                 "002",
