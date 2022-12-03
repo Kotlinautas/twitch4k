@@ -15,8 +15,9 @@ class PrivateMessageHandler(private val listener: OnReceivedChatMessageListener?
         val text = rawMessage.params.last().removePrefix(":")
         logger.info("[$channel] $chatter: $text")
 
-        val chat = Chat(sender)
-        listener?.onReceived(rawMessage.toChatMessage(), chat)
+        val message = rawMessage.toChatMessage()
+        val chat = Chat(message.channel, sender)
+        listener?.onReceived(message, chat)
     }
 
 }
