@@ -2,6 +2,7 @@ package dev.kotlinautas.twitch4k.components
 
 import dev.kotlinautas.twitch4k.components.handlers.AuthenticationHandler
 import dev.kotlinautas.twitch4k.components.handlers.MessageHandlerDiscovery
+import dev.kotlinautas.twitch4k.interfaces.OnConnectedListener
 import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
 import dev.kotlinautas.twitch4k.util.IRCMessageUtil
@@ -24,6 +25,7 @@ class TwitchHandler(
     private val logger = LoggerFactory.getLogger("TWITCH_HANDLER")
 
     var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
+    var onConnectedListener: OnConnectedListener? = null
 
     override fun run() = runBlocking {
         val messageHandlerDiscovery = MessageHandlerDiscovery().also { discovery ->
@@ -37,7 +39,7 @@ class TwitchHandler(
                 launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
                     val rawMessage = IRCMessageUtil.parseRawMessage(message)
                     val handler = when (rawMessage.command) {
-                        "001" -> AuthenticationHandler(channels)
+                        "001" -> AuthenticationHandler(channels, onConnectedListener)
                         else -> messageHandlerDiscovery.handleMessageFor(rawMessage)
                     }
                     handler?.handle(rawMessage, sender) ?: logger.error("Comando não esperado: ${rawMessage.command}")

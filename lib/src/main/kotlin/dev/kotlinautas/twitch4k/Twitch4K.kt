@@ -3,6 +3,7 @@ package dev.kotlinautas.twitch4k
 import dev.kotlinautas.twitch4k.components.TwitchHandler
 import dev.kotlinautas.twitch4k.components.TwitchMessages
 import dev.kotlinautas.twitch4k.components.TwitchSender
+import dev.kotlinautas.twitch4k.interfaces.OnConnectedListener
 import dev.kotlinautas.twitch4k.interfaces.OnReceivedChatMessageListener
 import dev.kotlinautas.twitch4k.interfaces.Sender
 import org.slf4j.LoggerFactory
@@ -25,9 +26,14 @@ class Twitch4K constructor(
     private val queue: Queue<String> = ConcurrentLinkedQueue()
 
     private var onReceivedChatMessageListener: OnReceivedChatMessageListener? = null
+    private var onConnectedListener: OnConnectedListener? = null
 
     fun setOnReceivedChatMessageListener(listener: OnReceivedChatMessageListener) {
         this.onReceivedChatMessageListener = listener
+    }
+
+    fun setOnConnectedListener(listener: OnConnectedListener) {
+        this.onConnectedListener = listener
     }
 
     fun start() {
@@ -64,8 +70,11 @@ class Twitch4K constructor(
     }
 
     private fun createAndStartTwitchHandlerThread(socket: Socket): Thread {
-        val twitchHandler = TwitchHandler(socket.getInputStream(), channels, this).also { handler ->
+        val twitchHandler = TwitchHandler(
+            socket.getInputStream(), channels, this
+        ).also { handler ->
             handler.onReceivedChatMessageListener = onReceivedChatMessageListener
+            handler.onConnectedListener = onConnectedListener
         }
         return Thread(twitchHandler).also { it.start() }
     }

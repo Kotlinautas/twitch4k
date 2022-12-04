@@ -55,22 +55,33 @@ dependencies {
 O trecho de código abaixo exemplifica como utilizar a biblioteca. Lembre-se de realizar os devidos `imports` no código abaixo (os mesmos foram retirados para deixar o exemplo enxuto).
 
 ```kotlin
-class Bot : OnReceivedChatMessageListener {
+
+// Classe que implementa as interfaces do Bot
+class Bot : OnReceivedChatMessageListener, OnConnectedListener {
+
+    // Método executado quando o bot estiver conectado no IRC da Twitch
+    override fun onConnected(channels: List<String>, chat: Chat) {
+        channels.forEach { channel ->
+            chat.send(channel, "<3 A mãe ta on! <3")
+        }
+    }
+
+    // Método executado toda vez que o bot recebe uma mensagem do chat dos canais registrados
     override fun onReceived(message: ChatMessage, chat: Chat) {
         
-        // Verifica se a mensagem recebia começa 
-        // com !teste. Caso positivo o bot irá responder 
-        // com a mesnagem "Teste" no chat da Twitch
+        // Se a mensagem inicar com "!teste" o bot responderá com "Teste"
         if(message.text.startsWith("!teste")){
             chat.send(message.channel, "Teste")
         }
     }
+
 }
 
 fun main() {
 
-    // Variável de ambiente com a conta do bot
+    // Variável de ambiente com a conta da Twitch do bot
     val username = System.getenv("TWITCH_BOT_USERNAME")
+
     // Variável de ambiente com o token OAuth de acesso à Twitch
     val token = System.getenv("TWITCH_BOT_TOKEN")
 
@@ -78,17 +89,19 @@ fun main() {
 
     // Criação da instância da biblioteca 
     val t4k = Twitch4K(
-        
         // Nome de usuário da conta do bot
         username = username,
-        
+
         // Token oauth da conta do bot
         // (vide texto acima para maiores informações)
         token = token,
-        
+
         // Lista de canais da Twitch
-        channels = listOf("canal_01, canal_02, canal_03")
+        channels = listOf("canal_01", "canal_02","canal_03")
     )
+
+    // Registra o evento de conexão com o IRC da Twitch
+    t4k.setOnConnectedListener(bot)
 
     // Registra o evento de mensagem recebida de algum chat registrado
     t4k.setOnReceivedChatMessageListener(bot)
@@ -97,6 +110,8 @@ fun main() {
     t4k.start()
 }
 ```
+:warning: Todos os registros de eventos devem ser efetuados **antes** da execução do método `start()` :warning:
+
 
 ## Créditos
 - Bruno Lopes - brunolopesjn@gmail.com
