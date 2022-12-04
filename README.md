@@ -58,7 +58,9 @@ O trecho de código abaixo exemplifica como utilizar a biblioteca. Lembre-se de 
 class Bot : OnReceivedChatMessageListener {
     override fun onReceived(message: ChatMessage, chat: Chat) {
         
-        // Verifica se a mensagem recebia começa com !teste. Caso positivo o bot irá responder com a mesnagem "Teste" no chat da Twitch
+        // Verifica se a mensagem recebia começa 
+        // com !teste. Caso positivo o bot irá responder 
+        // com a mesnagem "Teste" no chat da Twitch
         if(message.text.startsWith("!teste")){
             chat.send(message.channel, "Teste")
         }
