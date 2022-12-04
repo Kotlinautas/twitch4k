@@ -8,16 +8,16 @@ import dev.kotlinautas.twitch4k.util.IRCMessageUtil
 
 class PrivateMessageHandler(private val listener: OnReceivedChatMessageListener?) : AbstractMessageHandler() {
 
-    override fun handle(rawMessage: RawMessage, sender: Sender) {
-        logger.info(rawMessage.toString())
-        val chatter = IRCMessageUtil.getChatterUsernameFromPrefix(rawMessage.prefix)
-        val channel = rawMessage.params.first().removePrefix("#")
-        val text = rawMessage.params.last().removePrefix(":")
+    override fun handle(message: RawMessage, sender: Sender) {
+        logger.info(message.toString())
+        val chatter = IRCMessageUtil.getChatterUsernameFromPrefix(message.prefix)
+        val channel = message.params.first().removePrefix("#")
+        val text = message.params.last().removePrefix(":")
         logger.info("[$channel] $chatter: $text")
 
-        val message = rawMessage.toChatMessage()
-        val chat = Chat(message.channel, sender)
-        listener?.onReceived(message, chat)
+        val receivedMessage = message.toChatMessage()
+        val chat = Chat(sender)
+        listener?.onReceived(receivedMessage, chat)
     }
 
 }
