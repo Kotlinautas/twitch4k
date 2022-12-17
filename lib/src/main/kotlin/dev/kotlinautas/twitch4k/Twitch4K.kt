@@ -50,7 +50,6 @@ class Twitch4K constructor(
             twitchSenderThread.join()
         }
     }
-
     override fun sendMessage(message: String) {
         queue.add(message)
     }

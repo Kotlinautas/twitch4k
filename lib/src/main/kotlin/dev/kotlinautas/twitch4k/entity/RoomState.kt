@@ -6,13 +6,13 @@ data class RoomState(
     val tags: MutableMap<String, String>
 ) {
 
-    val isEmoteOnlyMode get() = tags["emote-only"] != "0"
+    val isEmoteOnlyMode get() = tags["emote-only"] == "0"
 
     val isFollowersOnlyMode get() = (tags["followers-only"]?.toIntOrNull() ?: -1) > 0
 
-    val isSlowMode get() = tags["slow"] != "0"
+    val isSlowMode get() = tags["slow"] == "0"
 
-    val isSubsOnlyMode get() = tags["subs-only"] != "0"
+    val isSubsOnlyMode get() = tags["subs-only"] == "0"
 
     override fun toString(): String {
         return """
