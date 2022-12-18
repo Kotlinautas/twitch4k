@@ -1,7 +1,6 @@
 package dev.kotlinautas.twitch4k.entity
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 data class ChatMessage(
@@ -11,5 +10,6 @@ data class ChatMessage(
     val text: String,
     val user: User,
 ) {
-    fun toJson():String = Json.encodeToString(this)
+    private val mapper = jacksonObjectMapper()
+    fun toJson():String = mapper.writeValueAsString(this)
 }

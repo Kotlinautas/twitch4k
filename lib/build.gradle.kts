@@ -1,6 +1,8 @@
 plugins {
     kotlin("jvm") version "1.7.21"
+
     id("com.github.johnrengelman.shadow") version "7.1.2"
+
     `java`
     `java-library`
     `maven-publish`
@@ -15,7 +17,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.4.5")
     implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("org.slf4j:slf4j-api:2.0.5")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
 
     testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
     testImplementation("io.kotest:kotest-assertions-core:5.5.4")

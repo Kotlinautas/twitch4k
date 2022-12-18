@@ -1,10 +1,7 @@
 package dev.kotlinautas.twitch4k.entity
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
-@Serializable
 data class User(
     val id: Long,
     val displayName: String,
@@ -13,6 +10,7 @@ data class User(
     val isFirstMessage: Boolean,
 ) {
 
-    fun toJson():String = Json.encodeToString(this)
+    private val mapper = jacksonObjectMapper()
+    fun toJson():String = mapper.writeValueAsString(this)
 
 }
