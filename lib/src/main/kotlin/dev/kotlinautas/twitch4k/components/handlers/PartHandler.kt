@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory
 
 class PartHandler : AbstractMessageHandler() {
 
-    override fun handle(rawMessage: RawMessage, sender: Sender) {
-        val chatter = IRCMessageUtil.getChatterUsernameFromPrefix(rawMessage.prefix)
-        logger.info("$chatter saiu no canal ${rawMessage.params.first()}")
+    override fun handle(message: RawMessage, sender: Sender) {
+        val chatter = IRCMessageUtil.getChatterUsernameFromPrefix(message.prefix)
+        logger.info("$chatter saiu no canal ${message.params.first()}")
     }
 }
