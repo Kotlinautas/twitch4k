@@ -1,5 +1,6 @@
 package dev.kotlinautas.twitch4k.util
 
+import dev.kotlinautas.twitch4k.entities.User
 import dev.kotlinautas.twitch4k.entities.message.IrcMessage
 
 object IRCMessageUtil {
@@ -15,10 +16,29 @@ object IRCMessageUtil {
         }
     }
 
-    fun getChatterUsernameFromPrefix(prefix: String): String {
-        return prefix
-            .removePrefix(":")
-            .substringBefore("!")
+    fun parseUser(ircMessage: IrcMessage): User {
+        return User(
+            id = ircMessage.tags.getUserId(),
+            displayName = ircMessage.tags.getDisplayName(),
+            color = ircMessage.tags.getColor(),
+            badges = parseBadges(ircMessage.tags.getBadges()),
+            isFirstMessage = ircMessage.tags.isFirstMessage(),
+            isModerator = ircMessage.tags.isModerator(),
+            isSubscriber = ircMessage.tags.isSubscriber(),
+        )
+    }
+
+    private fun parseBadges(badges: String): Map<String, Int> {
+        val badgesMap = mutableMapOf<String, Int>()
+        if(badges.isNotEmpty()){
+            badges
+                .split(",")
+                .forEach {
+                    val pair = it.split("/", limit = 2)
+                    badgesMap[pair.first()] = pair.last().toInt()
+                }
+        }
+        return badgesMap
     }
 
     private fun String.extractParams(builder: IrcMessage.Builder): String {

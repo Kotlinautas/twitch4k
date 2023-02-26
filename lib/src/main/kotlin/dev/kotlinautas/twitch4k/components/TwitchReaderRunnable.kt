@@ -1,8 +1,11 @@
 package dev.kotlinautas.twitch4k.components
 
-import dev.kotlinautas.twitch4k.interfaces.event.OnConnectedEvent
+import dev.kotlinautas.twitch4k.interfaces.event.OnChannelJoinEvent
 import dev.kotlinautas.twitch4k.AsyncEventBus
-import dev.kotlinautas.twitch4k.entities.message.RawMessage
+import dev.kotlinautas.twitch4k.entities.message.IrcMessage
+import dev.kotlinautas.twitch4k.entities.message.PingMessage
+import dev.kotlinautas.twitch4k.entities.message.PrivateMessage
+import dev.kotlinautas.twitch4k.interfaces.event.OnPrivateMessageEvent
 import dev.kotlinautas.twitch4k.util.IRCMessageUtil
 import dev.kotlinautas.twitch4k.util.MessageType
 import org.slf4j.LoggerFactory
@@ -21,12 +24,18 @@ class TwitchReaderRunnable(private val socket: Socket, private val channels: Lis
             if (message != null) {
 
                 logger.info(message)
-                val rawMessage = IRCMessageUtil.parseIrcMessage(message).toRawMessage()
+                val ircMessage = IRCMessageUtil.parseIrcMessage(message)
 
-                when (rawMessage.type) {
+                when (ircMessage.getMessageType()) {
                     MessageType.AUTH_SUCCESS -> connectedAction()
-                    MessageType.PRIVATE_MESSAGE -> notifyPrivateMessage()
-                    MessageType.PING -> sendPongMessage(rawMessage)
+                    MessageType.PRIVATE_MESSAGE -> {
+                        val privateMessage = ircMessage.toPrivateMessage()
+                        notifyPrivateMessage(privateMessage)
+                    }
+                    MessageType.PING -> {
+                        val pingMessage = ircMessage.toPingMessage()
+                        sendPongMessage(pingMessage)
+                    }
                     MessageType.WHISPER -> {}
                     MessageType.CLEAR_CHAT -> {}
                     MessageType.ROOM_STATE -> {}
@@ -42,20 +51,21 @@ class TwitchReaderRunnable(private val socket: Socket, private val channels: Lis
                     MessageType.GLOBAL_USER_STATE -> {}
 
                     MessageType.UNKNOW -> {
-                        logger.info("Mensagem desconhecida: $rawMessage")
+                        //logger.info("Mensagem desconhecida: $rawMessage")
                     }
                 }
             }
         }
     }
 
-    private fun sendPongMessage(rawMessage: RawMessage) {
+    private fun sendPongMessage(pingMessage: PingMessage) {
         logger.info("Mensagem de PING recebida, respondendo com um PONG")
-        socket.getOutputStream().write(TwitchMessages.pongMessage(rawMessage.message).toByteArray())
+        socket.getOutputStream()
+            .write(TwitchMessages.pongMessage(pingMessage.message).toByteArray())
     }
 
-    private fun notifyPrivateMessage() {
-
+    private fun notifyPrivateMessage(privateMessage: PrivateMessage) {
+        AsyncEventBus.dispatch(OnPrivateMessageEvent(privateMessage))
     }
 
     private fun connectedAction() {
@@ -65,7 +75,7 @@ class TwitchReaderRunnable(private val socket: Socket, private val channels: Lis
 
     private fun joinChannels() {
         channels.forEach { channel ->
-            AsyncEventBus.dispatch(OnConnectedEvent(channel, isConnected = true))
+            AsyncEventBus.dispatch(OnChannelJoinEvent(channel, isConnected = true))
             socket
                 .getOutputStream()
                 .write(TwitchMessages.joinMessage(channel).toByteArray())

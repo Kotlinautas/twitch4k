@@ -40,16 +40,8 @@ class IrcMessage private constructor(
         )
     }
 
-    fun toRawMessage(): RawMessage = RawMessage(
-        raw,
-        getMessageType(command),
-        command,
-        tags,
-        params.joinToString()
-    )
-
-    private fun getMessageType(command: String): MessageType {
-        return when (command) {
+    fun getMessageType(): MessageType {
+        return when (this.command) {
             "001" -> MessageType.AUTH_SUCCESS
             "353" -> MessageType.NAMES
             "WHISPER" -> MessageType.WHISPER
@@ -68,5 +60,33 @@ class IrcMessage private constructor(
             "GLOBALUSERSTATE" -> MessageType.GLOBAL_USER_STATE
             else -> MessageType.UNKNOW
         }
+    }
+
+    fun toPingMessage(): PingMessage {
+        return PingMessage(
+            raw = this.raw,
+            type = MessageType.PING,
+            rawType = this.command,
+            message = this.params.joinToString()
+        )
+    }
+
+    fun toPrivateMessage(): PrivateMessage {
+        return PrivateMessage(
+            raw = this.raw,
+            type = MessageType.PRIVATE_MESSAGE,
+            rawType = this.command,
+            tags = this.tags,
+            channel = this.params.first().substringAfter("#"),
+            text = this.params.last().substringAfter(":"),
+            roomId = this.tags.getRoomId(),
+            id = this.tags.getMessageId(),
+            date = this.tags.getDate(),
+            emotes = this.tags.getEmotes(),
+            bits = this.tags.getBits(),
+            firstMessage = this.tags.isFirstMessage(),
+            reply = this.tags.getReply(),
+            user = IRCMessageUtil.parseUser(this)
+        )
     }
 }

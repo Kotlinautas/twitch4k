@@ -2,13 +2,16 @@ package dev.kotlinautas.twitch4k
 
 import dev.kotlinautas.twitch4k.interfaces.bus.IEvent
 import dev.kotlinautas.twitch4k.interfaces.bus.ISubscribable
-import dev.kotlinautas.twitch4k.interfaces.event.OnConnectedEvent
+import dev.kotlinautas.twitch4k.interfaces.event.OnChannelJoinEvent
 import dev.kotlinautas.twitch4k.components.TwitchMessages
 import dev.kotlinautas.twitch4k.components.TwitchReaderRunnable
 import dev.kotlinautas.twitch4k.components.TwitchWriterRunnable
 import dev.kotlinautas.twitch4k.entities.ChannelStatus
+import dev.kotlinautas.twitch4k.entities.message.PrivateMessage
+import dev.kotlinautas.twitch4k.interfaces.event.OnPrivateMessageEvent
 import dev.kotlinautas.twitch4k.interfaces.event.OnSendMessageEvent
-import dev.kotlinautas.twitch4k.interfaces.listener.OnConnectedListener
+import dev.kotlinautas.twitch4k.interfaces.listener.OnChannelJoinedListener
+import dev.kotlinautas.twitch4k.interfaces.listener.OnPrivateMessageListener
 import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -21,8 +24,11 @@ class Twitch4K(val username: String, val token: String, val channels: List<Strin
 
     private val logger = LoggerFactory.getLogger("[TWITCH4K]")
     private val send: (String) -> Unit = { message -> AsyncEventBus.dispatch(OnSendMessageEvent(message)) }
+    private val say: (String, String) -> Unit =
+        { channel, text -> AsyncEventBus.dispatch(OnSendMessageEvent(TwitchMessages.privMessage(channel, text))) }
 
-    private lateinit var onConnectedListener: OnConnectedListener
+    private var onChannelJoinedListener: OnChannelJoinedListener? = null
+    private var onPrivateMessageListener: OnPrivateMessageListener? = null
 
     fun start() {
         AsyncEventBus.register(this)
@@ -72,22 +78,32 @@ class Twitch4K(val username: String, val token: String, val channels: List<Strin
         }
     }
 
-    fun setOnConnectedListener(listener: OnConnectedListener) {
-        this.onConnectedListener = listener
+    fun setOnConnectedListener(listener: OnChannelJoinedListener) {
+        this.onChannelJoinedListener = listener
+    }
+
+    fun setOnPrivateMessageListener(listener: OnPrivateMessageListener) {
+        this.onPrivateMessageListener = listener
     }
 
     override fun handle(event: IEvent<*>) {
         when (event::class) {
-            OnConnectedEvent::class -> {
+            OnChannelJoinEvent::class -> {
                 val status = event.getData() as ChannelStatus
-                onConnectedListener.onConnected(status, send)
+                onChannelJoinedListener?.onConnected(status, say)
+            }
+
+            OnPrivateMessageEvent::class -> {
+                val privateMessage = event.getData() as PrivateMessage
+                onPrivateMessageListener?.onPrivateMessage(privateMessage, say)
             }
         }
     }
 
     override fun supports(): Set<KClass<*>> {
         return setOf(
-            OnConnectedEvent::class
+            OnChannelJoinEvent::class,
+            OnPrivateMessageEvent::class
         )
     }
 

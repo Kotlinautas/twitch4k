@@ -3,9 +3,7 @@ package dev.kotlinautas.twitch4k.components
 import dev.kotlinautas.twitch4k.AsyncEventBus
 import dev.kotlinautas.twitch4k.interfaces.bus.IEvent
 import dev.kotlinautas.twitch4k.interfaces.bus.ISubscribable
-import dev.kotlinautas.twitch4k.interfaces.event.OnConnectedEvent
 import dev.kotlinautas.twitch4k.interfaces.event.OnSendMessageEvent
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.net.Socket
@@ -13,7 +11,7 @@ import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
-class TwitchWriterRunnable(val socket: Socket) : Runnable, ISubscribable {
+class TwitchWriterRunnable(private val socket: Socket) : Runnable, ISubscribable {
 
     private val logger = LoggerFactory.getLogger("[TWITCH4K-WRITER]")
     private val queue: Queue<String> = ConcurrentLinkedQueue()
@@ -24,13 +22,17 @@ class TwitchWriterRunnable(val socket: Socket) : Runnable, ISubscribable {
 
         while (true) {
             if (queue.isNotEmpty()) {
+
+                val message = queue.poll()
                 socket
                     .getOutputStream()
-                    .write(queue.poll().toByteArray())
+                    .write(message.toByteArray())
 
                 socket
                     .getOutputStream()
                     .flush()
+
+                logger.info("Mensagem enviada: ${message.substringBefore("\r\n")}")
             }
         }
     }
