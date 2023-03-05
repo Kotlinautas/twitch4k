@@ -1,8 +1,5 @@
 package dev.kotlinautas.twitch4k.components
 
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-
 object TwitchMessages {
 
     fun passMessage(password: String): String {
@@ -21,11 +18,11 @@ object TwitchMessages {
         return "CAP REQ :twitch.tv/membership\r\n"
     }
 
-    fun membershipTags(): String {
+    fun tagsCapability(): String {
         return "CAP REQ :twitch.tv/tags\r\n"
     }
 
-    fun membershipCommands(): String {
+    fun commandsCapability(): String {
         return "CAP REQ :twitch.tv/commands\r\n"
     }
 

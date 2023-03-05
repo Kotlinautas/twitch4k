@@ -17,7 +17,7 @@ class IRCMessageUtilTest : ShouldSpec({
                 params.add(":tmi.twitch.tv")
             }
 
-            IRCMessageUtil.parseRawMessage(ircMessage) shouldBeEqualToComparingFields expected
+            IRCMessageUtil.parseIrcMessage(ircMessage) shouldBeEqualToComparingFields expected
         }
 
         should("Realizar o parser de uma mensagem IRC com prefix, command e params") {
@@ -29,7 +29,7 @@ class IRCMessageUtilTest : ShouldSpec({
                 params.add("#bar")
             }
 
-            IRCMessageUtil.parseRawMessage(ircMessage) shouldBeEqualToComparingFields expected
+            IRCMessageUtil.parseIrcMessage(ircMessage) shouldBeEqualToComparingFields expected
         }
 
         should("Realizar o parser de uma mensagem IRC com tags, prefix, command e params") {
@@ -64,7 +64,7 @@ class IRCMessageUtilTest : ShouldSpec({
                 params.add(":Great stream -- keep it up!")
             }
 
-            IRCMessageUtil.parseRawMessage(ircMessage) shouldBeEqualToComparingFields expected
+            IRCMessageUtil.parseIrcMessage(ircMessage) shouldBeEqualToComparingFields expected
         }
 
     }
