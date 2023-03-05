@@ -104,7 +104,7 @@ fun main() {
     t4k.setOnConnectedListener(bot)
 
     // Registra o evento de mensagem recebida de algum chat registrado
-    t4k.setOnReceivedChatMessageListener(bot)
+    t4k.setOnPrivateMessageListener(bot)
 
     // Inicia o Bot
     t4k.start()
